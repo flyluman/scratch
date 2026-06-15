@@ -1,0 +1,303 @@
+basePath: /v1
+definitions:
+  httpapi.Envelope:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/httpapi.ErrBody'
+      success:
+        type: boolean
+    type: object
+  httpapi.ErrBody:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  item.CreateItemRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  item.ItemResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  item.ListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/item.ItemResponse'
+        type: array
+      next_cursor:
+        type: string
+    type: object
+  item.UpdateItemRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@scratch.dev
+    name: API Support
+  description: Production-grade Go hexagonal CRUD API for Items
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Scratch API
+  version: "1.0"
+paths:
+  /items:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of items
+      parameters:
+      - description: Cursor for pagination
+        in: query
+        name: cursor
+        type: string
+      - description: Max items per page (1-100)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                data:
+                  $ref: '#/definitions/item.ListResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+      summary: List items with cursor pagination
+      tags:
+      - items
+    post:
+      consumes:
+      - application/json
+      description: Create a new item with name and description
+      parameters:
+      - description: Item to create
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/item.CreateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                data:
+                  $ref: '#/definitions/item.ItemResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+      summary: Create a new item
+      tags:
+      - items
+  /items/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft or hard delete an item by ID (controlled by feature flag)
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+      summary: Delete an item
+      tags:
+      - items
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single item by its unique identifier
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                data:
+                  $ref: '#/definitions/item.ItemResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+      summary: Get an item by ID
+      tags:
+      - items
+    put:
+      consumes:
+      - application/json
+      description: Update the name and/or description of an existing item
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated item data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/item.UpdateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                data:
+                  $ref: '#/definitions/item.ItemResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            allOf:
+            - $ref: '#/definitions/httpapi.Envelope'
+            - properties:
+                error:
+                  $ref: '#/definitions/httpapi.ErrBody'
+              type: object
+      summary: Update an existing item
+      tags:
+      - items
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: JWT Bearer token authentication
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

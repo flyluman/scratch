@@ -1,0 +1,24 @@
+# Binaries
+/bin/
+/bin/*
+
+# Build output
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Editor files
+*.swp
+*.swo
+.DS_Store
+
+# Generated files
+wire_gen.go
+coverage.out
+coverage.html
+
+# Environment
+.env
+!.env.example
